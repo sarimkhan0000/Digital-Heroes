@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import {
   LogIn,
   LogOut,
   UserCheck,
+  User,
 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -52,22 +53,18 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-xl">
       {/* Top Micro Announcement Bar */}
-      <div className="bg-[#0B0F17] text-white px-4 py-1.5 text-xs">
+      <div className="bg-zinc-900 border-b border-zinc-800 text-zinc-400 px-4 py-1.5 text-xs font-mono">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono text-[11px] tracking-wide text-slate-300">
-              PRE-PRESS ENGINE v2.4 ONLINE • 300–600 DPI CALIBRATED WORKFLOW
-            </span>
+            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>PRE-PRESS ENGINE v2.4 • 300–600 DPI CALIBRATED WORKFLOW</span>
           </div>
-          <div className="hidden sm:flex items-center gap-4 font-mono text-[11px] text-slate-400">
+          <div className="hidden sm:flex items-center gap-4 text-zinc-400">
             <span>UK &amp; EU EXPRESS DISPATCH</span>
             <span>•</span>
-            <span className="text-orange-400 font-semibold">
-              BULK TIERS UP TO 40% OFF
-            </span>
+            <span className="text-zinc-200">BULK TIERS UP TO 40% OFF</span>
           </div>
         </div>
       </div>
@@ -75,64 +72,64 @@ export function Navbar() {
       {/* Main Navigation */}
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#E85D04] to-amber-600 text-white shadow-md shadow-orange-500/20 transition-transform group-hover:scale-105">
-            <Printer className="h-5 w-5" />
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-100 transition group-hover:border-zinc-700">
+            <Printer className="h-4 w-4" />
           </div>
           <div className="flex flex-col">
-            <span className="font-heading text-lg font-extrabold tracking-tight text-slate-900 leading-none">
+            <span className="font-heading text-sm font-bold tracking-tight text-zinc-100 leading-none">
               DIGITAL HEROES
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500 mt-1">
-              Industrial Web-to-Print
+            <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-500 mt-1">
+              Industrial Print
             </span>
           </div>
         </Link>
 
-        {/* Center Nav Pills */}
-        <nav className="hidden md:flex items-center gap-1 rounded-full border border-slate-200/80 bg-slate-100/70 p-1">
+        {/* Center Nav Links */}
+        <nav className="hidden md:flex items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900/60 p-1 font-mono text-xs">
           <Link
             href="/#divisions"
-            className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white hover:text-slate-950 hover:shadow-sm"
+            className="flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
           >
-            <Layers className="h-3.5 w-3.5 text-[#E85D04]" />
-            6 Divisions
+            <Layers className="h-3.5 w-3.5 text-zinc-400" />
+            Divisions
           </Link>
           <Link
             href="/#calculator"
-            className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white hover:text-slate-950 hover:shadow-sm"
+            className="flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
           >
-            <Calculator className="h-3.5 w-3.5 text-[#E85D04]" />
-            Live Estimator
+            <Calculator className="h-3.5 w-3.5 text-zinc-400" />
+            Estimator
           </Link>
           <Link
             href="/#gallery"
-            className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white hover:text-slate-950 hover:shadow-sm"
+            className="flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
           >
-            <Sparkles className="h-3.5 w-3.5 text-[#E85D04]" />
-            Press Gallery
+            <Sparkles className="h-3.5 w-3.5 text-zinc-400" />
+            Gallery
           </Link>
         </nav>
 
-        {/* Right Actions (Order Queue + Sign In / Account + Configure Job) */}
+        {/* Right Actions */}
         <div className="flex items-center gap-2.5">
           <Link
             href="/checkout"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs font-medium text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
           >
-            <ShoppingBag className="h-3.5 w-3.5 text-slate-600" />
+            <ShoppingBag className="h-3.5 w-3.5 text-zinc-400" />
             Checkout
           </Link>
 
           {userEmail ? (
             <div className="flex items-center gap-2">
-              <span className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-medium text-emerald-800">
-                <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="hidden lg:inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-300">
+                <UserCheck className="h-3.5 w-3.5 text-emerald-400" />
                 {userEmail.split("@")[0]}
               </span>
               <button
                 onClick={handleSignOut}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-300 transition hover:border-red-900 hover:bg-red-950/50 hover:text-red-400"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 Sign Out
@@ -141,16 +138,16 @@ export function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 transition hover:border-slate-300 hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3.5 py-2 text-xs font-medium text-zinc-200 transition hover:bg-zinc-800 hover:text-white"
             >
-              <LogIn className="h-3.5 w-3.5 text-[#E85D04]" />
-              Sign In
+              <LogIn className="h-3.5 w-3.5 text-zinc-400" />
+              Login / Sign In
             </Link>
           )}
 
           <Link
             href="/#divisions"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#E85D04]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3.5 py-2 text-xs font-semibold text-zinc-900 transition hover:bg-white"
           >
             Configure
             <ArrowUpRight className="h-3.5 w-3.5" />

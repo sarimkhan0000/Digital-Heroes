@@ -1,10 +1,56 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Printer, Calculator, Layers, Sparkles, ArrowUpRight, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  Printer,
+  Calculator,
+  Layers,
+  Sparkles,
+  ArrowUpRight,
+  ShoppingBag,
+  LogIn,
+  LogOut,
+  UserCheck,
+} from "lucide-react";
+import { createBrowserClient } from "@supabase/ssr";
 
 export function Navbar() {
+  const router = useRouter();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return;
+
+    const supabase = createBrowserClient(url, key);
+
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (url && key) {
+      const supabase = createBrowserClient(url, key);
+      await supabase.auth.signOut();
+    }
+    setUserEmail(null);
+    router.refresh();
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-black/10 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
       {/* Top Micro Announcement Bar */}
@@ -19,7 +65,9 @@ export function Navbar() {
           <div className="hidden sm:flex items-center gap-4 font-mono text-[11px] text-slate-400">
             <span>UK &amp; EU EXPRESS DISPATCH</span>
             <span>•</span>
-            <span className="text-orange-400 font-semibold">BULK TIERS UP TO 40% OFF</span>
+            <span className="text-orange-400 font-semibold">
+              BULK TIERS UP TO 40% OFF
+            </span>
           </div>
         </div>
       </div>
@@ -66,20 +114,45 @@ export function Navbar() {
           </Link>
         </nav>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-3">
+        {/* Right Actions (Order Queue + Sign In / Account + Configure Job) */}
+        <div className="flex items-center gap-2.5">
           <Link
             href="/checkout"
             className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
           >
             <ShoppingBag className="h-3.5 w-3.5 text-slate-600" />
-            Order Queue
+            Checkout
           </Link>
+
+          {userEmail ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden lg:inline-flex items-center gap-1.5 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-medium text-emerald-800">
+                <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
+                {userEmail.split("@")[0]}
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 transition hover:border-slate-300 hover:bg-slate-50"
+            >
+              <LogIn className="h-3.5 w-3.5 text-[#E85D04]" />
+              Sign In
+            </Link>
+          )}
+
           <Link
             href="/#divisions"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#E85D04]"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-[#E85D04]"
           >
-            Configure Job
+            Configure
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>

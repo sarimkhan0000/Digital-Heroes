@@ -1,74 +1,130 @@
-'use client';
+"use client";
 
-import { Suspense, useState } from 'react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createBrowserClient } from "@supabase/ssr";
+import { Printer, LogIn, ArrowLeft, UserCheck } from "lucide-react";
 
-function DashboardContent() {
-  const [userEmail] = useState('customer@digitalheroes.com');
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
+
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!url || !key) {
+      setErrorMsg("Supabase environment variables are missing.");
+      setLoading(false);
+      return;
+    }
+
+    const supabase = createBrowserClient(url, key);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setErrorMsg(error.message);
+      setLoading(false);
+    } else {
+      router.push("/");
+      router.refresh();
+    }
+  };
+
+  // 🚀 Guest Mode Handler
+  const handleGuestContinue = () => {
+    router.push("/");
+    router.refresh();
+  };
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-[#141413]">Customer Dashboard</h1>
-          <p className="mt-1 text-sm text-[#141413]/75">
-            Welcome back, <span className="font-semibold">{userEmail}</span>
-          </p>
-        </div>
-        <Link
-          href="/"
-          className="px-4 py-2 bg-[#141413] text-white text-sm font-medium rounded hover:bg-black transition-colors"
-        >
-          Back to Store
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 border border-[#141413]/10 shadow-sm rounded-lg">
-          <h3 className="text-sm font-semibold text-[#141413]/60 uppercase tracking-wider">Active Orders</h3>
-          <p className="text-3xl font-extrabold mt-2 text-[#E85D04]">2</p>
-        </div>
-        <div className="bg-white p-6 border border-[#141413]/10 shadow-sm rounded-lg">
-          <h3 className="text-sm font-semibold text-[#141413]/60 uppercase tracking-wider">Saved Prints</h3>
-          <p className="text-3xl font-extrabold mt-2 text-[#141413]">5</p>
-        </div>
-        <div className="bg-white p-6 border border-[#141413]/10 shadow-sm rounded-lg">
-          <h3 className="text-sm font-semibold text-[#141413]/60 uppercase tracking-wider">Account Status</h3>
-          <p className="text-sm font-bold mt-3 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full inline-block">
-            Verified Customer
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-white p-6 border border-[#141413]/10 shadow-sm rounded-lg">
-        <h2 className="text-xl font-bold text-[#141413] mb-4">Recent Orders</h2>
-        <div className="border-t border-[#141413]/10 divide-y divide-[#141413]/10">
-          <div className="py-4 flex justify-between items-center">
-            <div>
-              <p className="font-semibold text-[#141413]">Order #DH-948210</p>
-              <p className="text-sm text-[#141413]/70">Custom Web-to-Print Canvas Poster</p>
+    <main className="min-h-[85vh] flex items-center justify-center bg-slate-950 px-4 py-12 text-white">
+      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
+        <div className="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
+          <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white text-xs transition">
+            <ArrowLeft className="h-4 w-4" /> Back to Storefront
+          </Link>
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-[#E85D04] flex items-center justify-center text-white">
+              <Printer className="h-4 w-4" />
             </div>
-            <span className="text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded">Processing</span>
-          </div>
-          <div className="py-4 flex justify-between items-center">
-            <div>
-              <p className="font-semibold text-[#141413]">Order #DH-812394</p>
-              <p className="text-sm text-[#141413]/70">Business Flyer Pack (500 pcs)</p>
-            </div>
-            <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded">Delivered</span>
+            <span className="font-heading font-bold text-sm">Digital Heroes</span>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
 
-export default function DashboardPage() {
-  return (
-    <div className="min-h-screen bg-[#F5F4F0] p-8">
-      <Suspense fallback={<div className="text-center py-12 text-[#141413] font-medium">Loading dashboard...</div>}>
-        <DashboardContent />
-      </Suspense>
-    </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold tracking-tight">Client Sign In</h1>
+          <p className="text-slate-400 text-xs mt-1">
+            Access your pre-press portal and order history.
+          </p>
+        </div>
+
+        {errorMsg && (
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+            {errorMsg}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Business Email</label>
+            <input
+              required
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="client@company.com"
+              className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Password</label>
+            <input
+              required
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-2 py-3 rounded-xl bg-gradient-to-r from-[#E85D04] to-amber-600 text-white font-semibold text-sm transition hover:brightness-110 shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+          >
+            <LogIn className="h-4 w-4" />
+            {loading ? "Signing in..." : "Sign In to Portal"}
+          </button>
+        </form>
+
+        {/* Guest Mode Divider & Button */}
+        <div className="mt-6 pt-6 border-t border-slate-800 text-center">
+          <p className="text-xs text-slate-400 mb-3">Just want to test the configurator?</p>
+          <button
+            onClick={handleGuestContinue}
+            type="button"
+            className="w-full py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-slate-200 font-medium text-xs transition flex items-center justify-center gap-2"
+          >
+            <UserCheck className="h-4 w-4 text-emerald-400" />
+            Continue as Guest (Explore Storefront)
+          </button>
+        </div>
+      </div>
+    </main>
   );
 }

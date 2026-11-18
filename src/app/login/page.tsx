@@ -1,109 +1,73 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createBrowserClient } from '@supabase/ssr';
 
-function LoginFormContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') || '/dashboard';
-
-  // Initialize Supabase client for browser
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) throw authError;
-
-      // Successful login, redirect user
-      router.push(redirectTo);
-      router.refresh();
-    } catch (err: any) {
-      setError(err.message || 'Failed to login. Please check your credentials.');
-    } finally {
-      setLoading(false);
-    }
-  };
+function DashboardContent() {
+  const [userEmail] = useState('customer@digitalheroes.com');
 
   return (
-    <div className="max-w-md w-full bg-white p-8 border border-[#141413]/10 shadow-sm rounded-lg">
-      <h1 className="text-2xl font-bold text-[#141413] mb-2">Welcome Back</h1>
-      <p className="text-sm text-[#141413]/70 mb-6">Sign in to your Digital Heroes account</p>
-      
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded border border-red-200">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleLogin} className="space-y-4">
+    <div className="max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <label className="block text-sm font-medium text-[#141413] mb-1">Email Address</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-[#141413]/20 rounded focus:outline-none focus:border-[#141413]"
-            placeholder="you@example.com"
-          />
+          <h1 className="text-3xl font-bold text-[#141413]">Customer Dashboard</h1>
+          <p className="mt-1 text-sm text-[#141413]/75">
+            Welcome back, <span className="font-semibold">{userEmail}</span>
+          </p>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-[#141413] mb-1">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-[#141413]/20 rounded focus:outline-none focus:border-[#141413]"
-            placeholder="••••••••"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-[#141413] text-white py-2.5 rounded font-medium hover:bg-black transition-colors disabled:opacity-50"
+        <Link
+          href="/"
+          className="px-4 py-2 bg-[#141413] text-white text-sm font-medium rounded hover:bg-black transition-colors"
         >
-          {loading ? 'Signing in...' : 'Sign In'}
-        </button>
-      </form>
-
-      <p className="mt-6 text-center text-sm text-[#141413]/70">
-        Don't have an account?{' '}
-        <Link href="/signup" className="font-semibold text-[#E85D04] hover:underline">
-          Sign up
+          Back to Store
         </Link>
-      </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white p-6 border border-[#141413]/10 shadow-sm rounded-lg">
+          <h3 className="text-sm font-semibold text-[#141413]/60 uppercase tracking-wider">Active Orders</h3>
+          <p className="text-3xl font-extrabold mt-2 text-[#E85D04]">2</p>
+        </div>
+        <div className="bg-white p-6 border border-[#141413]/10 shadow-sm rounded-lg">
+          <h3 className="text-sm font-semibold text-[#141413]/60 uppercase tracking-wider">Saved Prints</h3>
+          <p className="text-3xl font-extrabold mt-2 text-[#141413]">5</p>
+        </div>
+        <div className="bg-white p-6 border border-[#141413]/10 shadow-sm rounded-lg">
+          <h3 className="text-sm font-semibold text-[#141413]/60 uppercase tracking-wider">Account Status</h3>
+          <p className="text-sm font-bold mt-3 text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full inline-block">
+            Verified Customer
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white p-6 border border-[#141413]/10 shadow-sm rounded-lg">
+        <h2 className="text-xl font-bold text-[#141413] mb-4">Recent Orders</h2>
+        <div className="border-t border-[#141413]/10 divide-y divide-[#141413]/10">
+          <div className="py-4 flex justify-between items-center">
+            <div>
+              <p className="font-semibold text-[#141413]">Order #DH-948210</p>
+              <p className="text-sm text-[#141413]/70">Custom Web-to-Print Canvas Poster</p>
+            </div>
+            <span className="text-sm font-medium text-amber-600 bg-amber-50 px-3 py-1 rounded">Processing</span>
+          </div>
+          <div className="py-4 flex justify-between items-center">
+            <div>
+              <p className="font-semibold text-[#141413]">Order #DH-812394</p>
+              <p className="text-sm text-[#141413]/70">Business Flyer Pack (500 pcs)</p>
+            </div>
+            <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded">Delivered</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default function LoginPage() {
+export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-[#F5F4F0] flex items-center justify-center p-4">
-      <Suspense fallback={<div className="text-center text-[#141413] font-medium">Loading login...</div>}>
-        <LoginFormContent />
+    <div className="min-h-screen bg-[#F5F4F0] p-8">
+      <Suspense fallback={<div className="text-center py-12 text-[#141413] font-medium">Loading dashboard...</div>}>
+        <DashboardContent />
       </Suspense>
     </div>
   );

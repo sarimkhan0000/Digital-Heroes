@@ -1,41 +1,103 @@
-'use client';
+﻿'use client';
 
-import Link from 'next/link';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Layers, Sliders, CheckCircle2, Sparkles, Box } from 'lucide-react';
 
 export function HeroSpecimen() {
-  return (
-    <div className="flex h-full flex-col justify-between border border-[#141413] bg-white p-6 sm:p-8">
-      <div>
-        <div className="flex items-center justify-between border-b border-[#141413]/15 pb-4">
-          <span className="font-mono text-xs uppercase tracking-widest text-[#E85D04] font-bold">
-            Live Specimen // Division 01
-          </span>
-          <span className="bg-[#141413] px-2.5 py-0.5 font-mono text-[10px] font-bold text-white">
-            300 DPI BLEED
-          </span>
-        </div>
+  const [activeTab, setActiveTab] = useState<'bib' | 'stencil'>('bib');
 
-        <div className="my-8 flex items-center justify-center border border-dashed border-[#141413]/30 bg-[#F5F4F0] p-8">
-          <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center bg-[#E85D04] text-white">
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <h3 className="mt-3 font-heading text-lg font-bold">Labels &amp; Stickers</h3>
-            <p className="mt-1 font-mono text-xs text-[#141413]/60">80×50mm • Gloss Vinyl</p>
+  return (
+    <div className="space-y-4">
+      {/* Specimen Switcher Tabs */}
+      <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
+        <div className="flex items-center gap-2 font-mono text-xs font-bold text-zinc-800">
+          <Layers className="h-4 w-4 text-zinc-600" />
+          <span>LIVE SPECIMEN PREVIEW</span>
+        </div>
+        <div className="flex gap-1.5 bg-zinc-100 p-1 rounded-lg">
+          <button
+            onClick={() => setActiveTab('bib')}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition ${
+              activeTab === 'bib'
+                ? 'bg-zinc-900 text-white shadow-sm'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
+          >
+            Alpine Bib
+          </button>
+          <button
+            onClick={() => setActiveTab('stencil')}
+            className={`px-3 py-1 rounded-md text-xs font-medium transition ${
+              activeTab === 'stencil'
+                ? 'bg-zinc-900 text-white shadow-sm'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
+          >
+            Eurorack Stencil
+          </button>
+        </div>
+      </div>
+
+      {/* Specimen Render Box */}
+      {activeTab === 'bib' ? (
+        <div className="rounded-xl border border-zinc-200 bg-gradient-to-br from-indigo-950 via-slate-900 to-zinc-900 p-6 text-white shadow-inner relative overflow-hidden">
+          {/* Ambient Glow */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="flex items-center justify-between mb-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/20 border border-indigo-500/40 px-3 py-1 text-[11px] font-mono font-semibold text-indigo-300">
+              <Sparkles className="h-3 w-3" />
+              NORTHFACE ALPINE SERIES
+            </span>
+            <span className="font-mono text-xs text-indigo-400">SKU-992-NV</span>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="font-heading text-lg font-bold tracking-tight text-white">
+              GORE-TEX Pro Bibing &amp; Variable Data Tag
+            </h4>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Calibrated laser-cut patch with variable athlete serial numbers and waterproof TPU heat-seal bonding.
+            </p>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between font-mono text-xs">
+            <span className="text-slate-400">Substrate: 3L Cordura</span>
+            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5" /> 300 DPI Verified
+            </span>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-xl border border-zinc-200 bg-gradient-to-br from-emerald-950 via-slate-900 to-zinc-900 p-6 text-white shadow-inner relative overflow-hidden">
+          {/* Ambient Glow */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
 
-      <div className="space-y-3">
-        <Link
-          href="/configure/labels-stickers?w=80&h=50&q=100"
-          className="flex w-full items-center justify-center gap-2 bg-[#E85D04] px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#cf5102] transition-colors"
-        >
-          Start Print Job (Labels &amp; Stickers)
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
+          <div className="flex items-center justify-between mb-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 text-[11px] font-mono font-semibold text-emerald-300">
+              <Sliders className="h-3 w-3" />
+              EURORACK SYNTH CALIBRATION
+            </span>
+            <span className="font-mono text-xs text-emerald-400">PANEL-HP-84</span>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="font-heading text-lg font-bold tracking-tight text-white">
+              Anodized Aluminum Stencil &amp; Panel Mask
+            </h4>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Precision milled 2mm brushed aluminum with high-contrast UV cured silkscreen markings for modular synth calibrating.
+            </p>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between font-mono text-xs">
+            <span className="text-slate-400">Tolerance: ±0.05mm</span>
+            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Millimeter Perfect
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

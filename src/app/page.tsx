@@ -1,6 +1,6 @@
 ﻿import { Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowDownRight, ArrowRight, ShieldCheck, Sparkles, Zap, Layers, Cpu, CheckCircle2, Globe, Flame } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ShieldCheck, Zap, Layers, Cpu, CheckCircle2, Terminal } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { DivisionMaterial, ProductDivision } from '@/types/database';
 import { DivisionGrid } from '@/components/storefront/DivisionGrid';
@@ -26,65 +26,64 @@ async function StorefrontContent() {
   return (
     <>
       {/* Six Product Divisions */}
-      <section id="divisions" className="mt-32 scroll-mt-28">
-        <div className="flex flex-col justify-between gap-4 pb-8 border-b border-slate-800/80 sm:flex-row sm:items-end">
+      <section id="divisions" className="mt-28 scroll-mt-28">
+        <div className="flex flex-col justify-between gap-4 pb-6 border-b border-zinc-800 sm:flex-row sm:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500/20 to-amber-500/10 border border-orange-500/30 px-4 py-1.5 text-xs font-mono font-semibold text-orange-400 shadow-sm">
-              <Cpu className="h-3.5 w-3.5 animate-pulse text-orange-400" />
-              PARAMETER-DRIVEN MANUFACTURING
+            <div className="inline-flex items-center gap-2 rounded-md bg-zinc-900 border border-zinc-800 px-3 py-1 text-xs font-mono text-zinc-400">
+              <Cpu className="h-3.5 w-3.5 text-zinc-300" />
+              PRODUCT_LINES_V2
             </div>
-            <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
               Production Divisions
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-400 max-w-2xl">
-              Select from six elite manufacturing pipelines featuring real-time millimeter sizing, custom substrate multipliers, and automated pre-press validation.
+            <p className="mt-1 text-sm text-zinc-400 max-w-xl">
+              Parameter-driven manufacturing lines with strict millimeter tolerances and substrate calibration.
             </p>
           </div>
-          <div className="flex items-center gap-2 font-mono text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-4 py-2 rounded-xl">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-            Live Supabase Cluster Synced
-          </div>
+          <span className="font-mono text-xs text-zinc-500 bg-zinc-900/60 border border-zinc-800/80 px-3 py-1.5 rounded-md">
+            API Sync: Active
+          </span>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-8">
           <DivisionGrid divisions={safeDivisions} />
         </div>
       </section>
 
       {/* Live Instant-Price Calculator */}
-      <section id="calculator" className="mt-36 scroll-mt-28">
-        <div className="pb-8 border-b border-slate-800/80">
-          <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/10 border border-blue-500/30 px-4 py-1.5 text-xs font-mono font-semibold text-blue-400 shadow-sm">
-            <Zap className="h-3.5 w-3.5 text-blue-400" />
-            REAL-TIME TELEMETRY ENGINE
+      <section id="calculator" className="mt-32 scroll-mt-28">
+        <div className="pb-6 border-b border-zinc-800">
+          <div className="inline-flex items-center gap-2 rounded-md bg-zinc-900 border border-zinc-800 px-3 py-1 text-xs font-mono text-zinc-400">
+            <Zap className="h-3.5 w-3.5 text-zinc-300" />
+            TELEMETRY_ENGINE
           </div>
-          <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Instant Quote &amp; Spec Calculator
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
+            Instant Quote Calculator
           </h2>
-          <p className="mt-2 text-sm sm:text-base text-slate-400 max-w-2xl">
-            Dynamic area computation, automated volume discount scaling, and precise UK VAT calculations instantly rendered.
+          <p className="mt-1 text-sm text-zinc-400 max-w-xl">
+            Real-time area calculation, tiered volume discounts, and itemized VAT estimation.
           </p>
         </div>
-        <div className="mt-10">
+        <div className="mt-8">
           <LiveCalculator divisions={safeDivisions} materials={safeMaterials} />
         </div>
       </section>
 
       {/* Production Gallery */}
-      <section id="gallery" className="mt-36 scroll-mt-28 mb-24">
-        <div className="pb-8 border-b border-slate-800/80">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-4 py-1.5 text-xs font-mono font-semibold text-emerald-400 shadow-sm">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-            CALIBRATED QUALITY ASSURANCE
+      <section id="gallery" className="mt-32 scroll-mt-28 mb-20">
+        <div className="pb-6 border-b border-zinc-800">
+          <div className="inline-flex items-center gap-2 rounded-md bg-zinc-900 border border-zinc-800 px-3 py-1 text-xs font-mono text-zinc-400">
+            <CheckCircle2 className="h-3.5 w-3.5 text-zinc-300" />
+            QUALITY_ASSURANCE
           </div>
-          <h2 className="mt-4 font-heading text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Recent Press &amp; Fabrication Work
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
+            Recent Press Runs
           </h2>
-          <p className="mt-2 text-sm sm:text-base text-slate-400 max-w-2xl">
-            Inspect verified industrial production batches categorized by division and high-grade material specifications.
+          <p className="mt-1 text-sm text-zinc-400 max-w-xl">
+            Verified production output catalogued across divisions.
           </p>
         </div>
-        <div className="mt-10">
+        <div className="mt-8">
           <PrintGallery />
         </div>
       </section>
@@ -94,84 +93,66 @@ async function StorefrontContent() {
 
 export default function HomePage() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      {/* Elite Bento Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#0a0e17] to-[#040609] border border-slate-800 shadow-2xl p-8 sm:p-12 lg:p-16">
-        {/* Glowing Background Orbs */}
-        <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-[#E85D04]/20 to-amber-500/10 blur-[140px]" />
-        <div className="pointer-events-none absolute -bottom-40 -right-20 h-[500px] w-[500px] rounded-full bg-gradient-to-bl from-blue-600/15 to-indigo-600/5 blur-[140px]" />
-
-        <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column Content */}
-          <div className="lg:col-span-7 space-y-8">
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-xs font-mono font-bold text-orange-300 shadow-inner backdrop-blur-md">
-              <Flame className="h-4 w-4 text-[#E85D04]" />
-              <span>INDUSTRIAL WEB-TO-PRINT INFRASTRUCTURE</span>
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      {/* Professional Enterprise Hero Section */}
+      <section className="relative overflow-hidden rounded-2xl bg-zinc-950 border border-zinc-800 p-8 sm:p-12 lg:p-16">
+        <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs font-mono text-zinc-300">
+              <Terminal className="h-3.5 w-3.5 text-zinc-400" />
+              <span>DIGITAL HEROES INFRASTRUCTURE</span>
             </div>
 
-            <h1 className="font-heading text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
-              Precision Print, <br />
-              <span className="bg-gradient-to-r from-[#FF7B29] via-amber-300 to-orange-500 bg-clip-text text-transparent">
-                Engineered to the Millimeter.
-              </span>
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-100 sm:text-5xl lg:text-6xl leading-[1.1]">
+              Industrial print execution, <br />
+              <span className="text-zinc-400 font-normal">engineered precisely.</span>
             </h1>
 
-            <p className="max-w-xl text-base sm:text-lg leading-relaxed text-slate-300 font-normal">
-              Configure exact parameters across 6 specialized production divisions, merge variable CSV data sets, and sign off high-DPI calibrated proofs before dispatch.
+            <p className="max-w-xl text-sm sm:text-base text-zinc-400 leading-relaxed">
+              Automated pre-press verification, variable data CSV merging, and precise millimeter-scale configuration across specialized industrial production lines.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 href="#divisions"
-                className="inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#E85D04] to-amber-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-orange-500/30 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-lg bg-zinc-100 px-5 py-3 text-sm font-medium text-zinc-900 transition hover:bg-white"
               >
-                Browse Six Divisions
+                Browse Divisions
                 <ArrowDownRight className="h-4 w-4" />
               </Link>
               <Link
                 href="#calculator"
-                className="inline-flex items-center gap-2.5 rounded-2xl border border-slate-700/80 bg-slate-800/40 px-8 py-4 text-sm font-bold text-slate-200 backdrop-blur-md transition-all hover:border-slate-500 hover:bg-slate-800 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/50 px-5 py-3 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
               >
-                Instant Estimator
+                Price Estimator
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
 
-            {/* Glowing Bento Grid Metrics */}
-            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-800/80">
-              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm transition-all hover:border-orange-500/40">
-                <div className="flex items-center gap-1.5 text-orange-400 text-xs font-mono font-bold">
-                  <Zap className="h-3.5 w-3.5" />
-                  <span>RESOLUTION</span>
-                </div>
-                <p className="mt-1.5 font-mono text-xl font-extrabold text-white">300 DPI</p>
+            {/* Clean Enterprise Specs Bar */}
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-zinc-800/80 font-mono text-xs">
+              <div>
+                <span className="block text-zinc-500">RESOLUTION</span>
+                <span className="font-semibold text-zinc-200">300 – 600 DPI</span>
               </div>
-
-              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm transition-all hover:border-emerald-500/40">
-                <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono font-bold">
-                  <Globe className="h-3.5 w-3.5" />
-                  <span>DISPATCH</span>
-                </div>
-                <p className="mt-1.5 font-mono text-xl font-extrabold text-white">24h Express</p>
+              <div>
+                <span className="block text-zinc-500">TURNAROUND</span>
+                <span className="font-semibold text-zinc-200">24h Express</span>
               </div>
-
-              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-4 backdrop-blur-sm transition-all hover:border-sky-500/40">
-                <div className="flex items-center gap-1.5 text-sky-400 text-xs font-mono font-bold">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>GATEWAY</span>
-                </div>
-                <p className="mt-1.5 font-mono text-xl font-extrabold text-white">Proof-Locked</p>
+              <div>
+                <span className="block text-zinc-500">VALIDATION</span>
+                <span className="font-semibold text-zinc-200">Proof-Gated</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column Interactive Specimen Card */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="w-full max-w-md rounded-3xl bg-slate-950/80 border border-slate-800/90 p-6 shadow-2xl relative backdrop-blur-xl group">
-              <div className="absolute -top-3.5 right-6 px-3.5 py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-[11px] font-mono text-emerald-300 font-bold uppercase tracking-wider shadow-md">
-                Live Interactive Specimen
+            <div className="w-full max-w-md rounded-xl bg-zinc-900 border border-zinc-800 p-5 shadow-lg">
+              <div className="mb-3 flex items-center justify-between border-b border-zinc-800 pb-2 font-mono text-[11px] text-zinc-400">
+                <span>SPECIMEN_PREVIEW.tsx</span>
+                <span className="text-emerald-400 font-medium">● ACTIVE</span>
               </div>
-              <div className="text-[#141413] bg-[#F5F4F0] rounded-2xl p-5 shadow-inner transition-transform duration-300 group-hover:scale-[1.01]">
+              <div className="text-[#141413] bg-[#F5F4F0] rounded-lg p-4">
                 <HeroSpecimen />
               </div>
             </div>
@@ -181,8 +162,8 @@ export default function HomePage() {
 
       <Suspense
         fallback={
-          <div className="mt-32 rounded-3xl border border-slate-800 bg-slate-900/80 p-12 text-center font-mono text-xs text-slate-400 shadow-2xl animate-pulse">
-            Synchronizing manufacturing divisions &amp; pricing matrix...
+          <div className="mt-20 rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-center font-mono text-xs text-zinc-500">
+            Initializing production modules...
           </div>
         }
       >

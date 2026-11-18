@@ -1,138 +1,139 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@supabase/ssr';
 
-export default function RegisterPage() {
+function SignupFormContent() {
   const router = useRouter();
-  const [fullName, setFullName] = useState('');
-  const [companyName, setCompanyName] = useState('');
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/dashboard';
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError('');
+    setMessage('');
 
-    const supabase = createClient();
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: 'customer',
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
         },
-      },
-    });
+      });
 
-    if (signUpError) {
-      setError(signUpError.message);
+      if (signUpError) throw signUpError;
+
+      if (data.session) {
+        router.push(redirectTo);
+        router.refresh();
+      } else {
+        setMessage('Account created! Please check your email to verify your account.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to create account.');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    if (data.user && companyName.trim()) {
-      await supabase
-        .from('profiles')
-        .update({ company_name: companyName.trim() })
-        .eq('id', data.user.id);
-    }
-
-    router.push('/dashboard');
-    router.refresh();
   };
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <div className="border border-[#141413] bg-white p-8">
-        <h1 className="font-heading text-2xl font-bold tracking-tight">Create Account</h1>
-        <p className="mt-1 text-xs text-[#141413]/65">
-          Save custom artwork templates, review digital proofs, and download VAT invoices
-        </p>
+    <div className="max-w-md w-full bg-white p-8 border border-[#141413]/10 shadow-sm rounded-lg">
+      <h1 className="text-2xl font-bold text-[#141413] mb-2">Create an Account</h1>
+      <p className="text-sm text-[#141413]/70 mb-6">Join Digital Heroes to order custom prints</p>
+      
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded border border-red-200">
+          {error}
+        </div>
+      )}
 
-        <form onSubmit={handleRegister} className="mt-6 space-y-4">
-          <div>
-            <label className="block font-mono text-xs font-semibold uppercase text-[#141413]/75">
-              Full Name
-            </label>
-            <input
-              type="text"
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="mt-1.5 w-full border border-[#141413]/25 bg-[#F5F4F0] px-3.5 py-2.5 text-sm focus:border-[#141413] focus:bg-white focus:outline-none"
-            />
-          </div>
+      {message && (
+        <div className="mb-4 p-3 bg-emerald-50 text-emerald-700 text-sm rounded border border-emerald-200">
+          {message}
+        </div>
+      )}
 
-          <div>
-            <label className="block font-mono text-xs font-semibold uppercase text-[#141413]/75">
-              Company / Race Club (Optional)
-            </label>
-            <input
-              type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              className="mt-1.5 w-full border border-[#141413]/25 bg-[#F5F4F0] px-3.5 py-2.5 text-sm focus:border-[#141413] focus:bg-white focus:outline-none"
-            />
-          </div>
+      <form onSubmit={handleSignup} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-[#141413] mb-1">Full Name</label>
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-[#141413]/20 rounded focus:outline-none focus:border-[#141413]"
+            placeholder="John Doe"
+          />
+        </div>
 
-          <div>
-            <label className="block font-mono text-xs font-semibold uppercase text-[#141413]/75">
-              Email Address
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1.5 w-full border border-[#141413]/25 bg-[#F5F4F0] px-3.5 py-2.5 text-sm focus:border-[#141413] focus:bg-white focus:outline-none"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-[#141413] mb-1">Email Address</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-[#141413]/20 rounded focus:outline-none focus:border-[#141413]"
+            placeholder="you@example.com"
+          />
+        </div>
 
-          <div>
-            <label className="block font-mono text-xs font-semibold uppercase text-[#141413]/75">
-              Password (min 8 chars)
-            </label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1.5 w-full border border-[#141413]/25 bg-[#F5F4F0] px-3.5 py-2.5 text-sm focus:border-[#141413] focus:bg-white focus:outline-none"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-[#141413] mb-1">Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full px-3 py-2 border border-[#141413]/20 rounded focus:outline-none focus:border-[#141413]"
+            placeholder="••••••••"
+          />
+        </div>
 
-          {error && (
-            <div className="border border-red-600 bg-red-50 p-3 text-xs font-medium text-red-800">
-              {error}
-            </div>
-          )}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-[#141413] text-white py-2.5 rounded font-medium hover:bg-black transition-colors disabled:opacity-50"
+        >
+          {loading ? 'Creating account...' : 'Sign Up'}
+        </button>
+      </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 bg-[#E85D04] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#cf5102] disabled:opacity-50"
-          >
-            {loading ? 'Creating Account...' : 'Register Account'}
-            <ArrowRight className="h-4 w-4"/>
-          </button>
-        </form>
+      <p className="mt-6 text-center text-sm text-[#141413]/70">
+        Already have an account?{' '}
+        <Link href="/login" className="font-semibold text-[#E85D04] hover:underline">
+          Sign in
+        </Link>
+      </p>
+    </div>
+  );
+}
 
-        <p className="mt-6 border-t border-[#141413]/10 pt-4 text-center text-xs text-[#141413]/70">
-          Already registered?{' '}
-          <Link className="font-semibold text-[#141413] underline decoration-[#E85D04]" href="/login">
-            Sign in here
-          </Link>
-        </p>
-      </div>
+export default function SignupPage() {
+  return (
+    <div className="min-h-screen bg-[#F5F4F0] flex items-center justify-center p-4">
+      <Suspense fallback={<div className="text-center text-[#141413] font-medium">Loading signup...</div>}>
+        <SignupFormContent />
+      </Suspense>
     </div>
   );
 }

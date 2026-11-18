@@ -1,77 +1,124 @@
-import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { DivisionMaterial, ProductDivision } from '@/types/database';
-import { ConfiguratorWorkspace } from '@/components/designer/ConfiguratorWorkspace';
-
-// Allow blocking dynamic route in Next.js 16
-export const instant = false;
+import { notFound } from 'next/navigation';
 
 interface PageProps {
   params: Promise<{ divisionSlug: string }>;
-  searchParams: Promise<{ w?: string; h?: string; q?: string; m?: string }>;
 }
 
-export default async function ConfigureDivisionPage({
-  params,
-  searchParams,
-}: PageProps) {
+const DIVISIONS: Record<string, { title: string; description: string; basePrice: number }> = {
+  'custom-posters': {
+    title: 'Custom Posters & Wall Art',
+    description: 'High-resolution archival prints on matte or glossy museum-grade paper.',
+    basePrice: 29.99,
+  },
+  'business-cards': {
+    title: 'Premium Business Cards',
+    description: 'Thick 350gsm cardstock with matte, gloss, or soft-touch lamination.',
+    basePrice: 19.99,
+  },
+  'banners-signage': {
+    title: 'Vinyl Banners & Signage',
+    description: 'Weather-resistant indoor and outdoor vinyl banners with custom grommets.',
+    basePrice: 49.99,
+  },
+  'flyers-brochures': {
+    title: 'Marketing Flyers & Brochures',
+    description: 'Vibrant full-color promotional prints folded to your exact specifications.',
+    basePrice: 34.99,
+  },
+};
+
+async function ConfigureContent({ params }: PageProps) {
   const { divisionSlug } = await params;
-  const query = await searchParams;
 
-  const decodedSlug = decodeURIComponent(divisionSlug).trim();
+  const division = DIVISIONS[divisionSlug] || {
+    title: divisionSlug
+      .split('-')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' '),
+    description: 'Customize your print specifications, dimensions, and quantity below.',
+    basePrice: 24.99,
+  };
 
-  const supabase = await createServerSupabaseClient();
-  
-  const { data: division, error: divError } = await supabase
-    .from('product_divisions')
-    .select('*')
-    .eq('slug', decodedSlug)
-    .maybeSingle();
-
-  if (divError || !division) {
-    console.error('Division fetch error or not found for slug:', decodedSlug, divError);
+  if (!divisionSlug) {
     notFound();
   }
 
-  const { data: materials } = await supabase
-    .from('division_materials')
-    .select('*')
-    .eq('division_id', division.id);
-
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-6 flex flex-col justify-between gap-3 border-b border-[#141413] pb-5 sm:flex-row sm:items-end">
-        <div>
-          <Link
-            className="inline-flex items-center gap-1.5 font-mono text-xs text-[#141413]/70 hover:text-[#E85D04]"
-            href="/#divisions"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            All Six Divisions
-          </Link>
-          <h1 className="mt-2 font-heading text-3xl font-bold tracking-tight">
-            {division.name}
-          </h1>
-          <p className="mt-1 text-sm text-[#141413]/75">{division.tagline}</p>
-        </div>
-
-        <div className="font-mono text-xs text-[#141413]/75">
-          Output: <strong>{division.output_dpi ?? 300} DPI</strong> • Bleed:{' '}
-          <strong>{division.bleed_mm ?? 2}mm</strong> • Safe Margin:{' '}
-          <strong>{division.safe_margin_mm ?? 3}mm</strong>
-        </div>
+    <div className="max-w-4xl mx-auto bg-white p-8 border border-[#141413]/10 shadow-sm rounded-lg">
+      <div className="mb-6">
+        <Link
+          href="/"
+          className="text-sm font-medium text-[#141413]/60 hover:text-[#141413] transition-colors"
+        >
+          ← Back to Catalog
+        </Link>
+        <h1 className="text-3xl font-bold text-[#141413] mt-2">{division.title}</h1>
+        <p className="text-sm text-[#141413]/75 mt-1">{division.description}</p>
       </div>
 
-      <ConfiguratorWorkspace
-        division={division as ProductDivision}
-        materials={(materials ?? []) as DivisionMaterial[]}
-        initialWidth={query.w ? Number(query.w) : undefined}
-        initialHeight={query.h ? Number(query.h) : undefined}
-        initialQuantity={query.q ? Number(query.q) : undefined}
-        initialMaterialId={query.m}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-[#141413]/10">
+        <div className="bg-[#F5F4F0] rounded-lg p-6 flex flex-col items-center justify-center min-h-[260px] border border-dashed border-[#141413]/20">
+          <p className="text-sm font-semibold text-[#141413]">Print Preview Area</p>
+          <p className="text-xs text-[#141413]/60 mt-1 text-center">
+            Configure your dimensions and upload artwork to preview
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-[#141413] mb-1">Select Size</label>
+            <select className="w-full px-3 py-2 border border-[#141413]/20 rounded bg-white text-sm text-[#141413] focus:outline-none focus:border-[#141413]">
+              <option value="small">Standard Small (12&quot; x 18&quot;)</option>
+              <option value="medium">Medium (18&quot; x 24&quot;)</option>
+              <option value="large">Large Format (24&quot; x 36&quot;)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#141413] mb-1">Finish / Material</label>
+            <select className="w-full px-3 py-2 border border-[#141413]/20 rounded bg-white text-sm text-[#141413] focus:outline-none focus:border-[#141413]">
+              <option value="matte">Archival Matte Finish</option>
+              <option value="gloss">High-Gloss Photo Finish</option>
+              <option value="canvas">Textured Cotton Canvas</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#141413] mb-1">Quantity</label>
+            <input
+              type="number"
+              min={1}
+              defaultValue={1}
+              className="w-full px-3 py-2 border border-[#141413]/20 rounded text-sm text-[#141413] focus:outline-none focus:border-[#141413]"
+            />
+          </div>
+
+          <div className="pt-4 border-t border-[#141413]/10 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-[#141413]/60">Starting Price</p>
+              <p className="text-2xl font-extrabold text-[#141413]">${division.basePrice.toFixed(2)}</p>
+            </div>
+            <Link
+              href="/checkout"
+              className="px-6 py-3 bg-[#E85D04] text-white font-semibold text-sm rounded hover:bg-[#d15203] transition-colors"
+            >
+              Proceed to Checkout
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ConfigurePage(props: PageProps) {
+  return (
+    <div className="min-h-screen bg-[#F5F4F0] py-12 px-4">
+      <Suspense fallback={<div className="text-center py-12 text-[#141413] font-medium">Loading configurator...</div>}>
+        <ConfigureContent {...props} />
+      </Suspense>
     </div>
   );
 }

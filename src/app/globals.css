@@ -1,22 +1,24 @@
 @import "tailwindcss";
 
-:root {
-  --background: #F5F4F0;
-  --foreground: #141413;
+@layer base {
+  body {
+    background-color: #07090e;
+    color: #f8fafc;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
+/* Custom Industrial Glows & Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
-
-/* Clean & Safe Dark Mode (Bina colors kharab kiye) */
-html.dark {
-  filter: invert(0.92) hue-rotate(180deg);
+::-webkit-scrollbar-track {
+  background: #07090e;
 }
-
-html.dark img,
-html.dark canvas,
-html.dark video {
-  filter: invert(1) hue-rotate(180deg);
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }

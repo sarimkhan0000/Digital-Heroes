@@ -3,11 +3,18 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { createBrowserClient } from '@supabase/ssr';
 
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
+
+  // Initialize Supabase client for browser
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,18 +27,27 @@ function LoginFormContent() {
     setError('');
 
     try {
-      // Add your Supabase auth login logic here if needed, or redirect
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) throw authError;
+
+      // Successful login, redirect user
       router.push(redirectTo);
+      router.refresh();
     } catch (err: any) {
-      setError(err.message || 'Failed to login');
+      setError(err.message || 'Failed to login. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md w-full bg-white p-8 border border-[#141413]/10 shadow-sm">
-      <h1 className="text-2xl font-bold text-[#141413] mb-6">Login to Digital Heroes</h1>
+    <div className="max-w-md w-full bg-white p-8 border border-[#141413]/10 shadow-sm rounded-lg">
+      <h1 className="text-2xl font-bold text-[#141413] mb-2">Welcome Back</h1>
+      <p className="text-sm text-[#141413]/70 mb-6">Sign in to your Digital Heroes account</p>
       
       {error && (
         <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded border border-red-200">
@@ -67,13 +83,13 @@ function LoginFormContent() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#141413] text-white py-2 rounded font-medium hover:bg-black transition-colors disabled:opacity-50"
+          className="w-full bg-[#141413] text-white py-2.5 rounded font-medium hover:bg-black transition-colors disabled:opacity-50"
         >
-          {loading ? 'Logging in...' : 'Sign In'}
+          {loading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-[#141413]/70">
+      <p className="mt-6 text-center text-sm text-[#141413]/70">
         Don't have an account?{' '}
         <Link href="/signup" className="font-semibold text-[#E85D04] hover:underline">
           Sign up

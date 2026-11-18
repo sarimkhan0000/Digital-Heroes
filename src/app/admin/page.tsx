@@ -2,9 +2,6 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-// Prevent static prerendering for admin route during build
-export const dynamic = 'force-dynamic';
-
 export default async function AdminPage() {
   const cookieStore = await cookies();
   

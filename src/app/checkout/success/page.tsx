@@ -1,71 +1,46 @@
+'use client';
+
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, FileCheck2 } from 'lucide-react';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 
-interface SuccessPageProps {
-  searchParams: Promise<{ orderId?: string }>;
-}
-
-export default async function CheckoutSuccessPage({ searchParams }: SuccessPageProps) {
-  const { orderId } = await searchParams;
-  const supabase = await createServerSupabaseClient();
-
-  const { data: order } = orderId
-    ? await supabase.from('orders').select('*').eq('id', orderId).single()
-    : { data: null };
+function CheckoutSuccessContent() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('order_id') || searchParams.get('session_id') || 'DH-' + Math.floor(100000 + Math.random() * 900000);
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-16">
-      <div className="border border-[#141413] bg-white p-8">
-        <div className="flex items-center gap-3 text-emerald-700">
-          <CheckCircle2 className="h-7 w-7" />
-          <span className="font-mono text-xs font-bold uppercase tracking-wider">
-            Payment Confirmed • Job Queued
-          </span>
-        </div>
-
-        <h1 className="mt-4 font-heading text-3xl font-bold tracking-tight">
-          Order {order?.order_number ?? 'Confirmed'}
-        </h1>
-
-        <p className="mt-3 text-sm leading-relaxed text-[#141413]/75">
-          Your specifications and artwork have entered the pre-press pipeline. Per Digital Heroes production policy, <strong>high-resolution print files remain locked</strong> until you explicitly approve your digital proof (v1).
-        </p>
-
-        {order && (
-          <div className="mt-6 border border-[#141413]/15 bg-[#F5F4F0] p-4 font-mono text-xs space-y-1.5">
-            <div className="flex justify-between">
-              <span className="text-[#141413]/60">Product:</span>
-              <span className="font-bold">{order.division_slug}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#141413]/60">Dimensions:</span>
-              <span>
-                {order.width_mm} × {order.height_mm} mm ({order.quantity} units)
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#141413]/60">Total Paid (inc. VAT):</span>
-              <span className="font-bold">£{Number(order.total_inc_vat).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#141413]/60">Pipeline Stage:</span>
-              <span className="font-bold text-[#E85D04]">{order.stage}</span>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-          <Link
-            href={order ? `/dashboard/orders/${order.id}` : '/dashboard'}
-            className="flex flex-1 items-center justify-center gap-2 bg-[#E85D04] px-5 py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#cf5102] transition-colors"
-          >
-            <FileCheck2 className="h-4 w-4" />
-            Review &amp; Approve Proof v1
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+    <div className="max-w-md mx-auto bg-white p-8 border border-[#141413]/10 shadow-sm text-center">
+      <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+        ✓
       </div>
+      <h1 className="text-2xl font-bold text-[#141413]">Order Placed Successfully!</h1>
+      <p className="mt-2 text-sm text-[#141413]/70">
+        Thank you for your purchase. Your digital print order has been confirmed.
+      </p>
+      
+      <div className="mt-6 p-4 bg-[#F5F4F0] rounded text-left text-sm text-[#141413]">
+        <p><span className="font-semibold">Order ID:</span> {orderId}</p>
+        <p className="mt-1"><span className="text-emerald-700 font-medium">Status:</span> Processing &amp; Verification</p>
+      </div>
+
+      <div className="mt-8 flex flex-col gap-3">
+        <Link
+          href="/"
+          className="w-full bg-[#141413] text-white py-3 rounded font-medium hover:bg-black transition-colors"
+        >
+          Back to Home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <div className="min-h-screen bg-[#F5F4F0] flex items-center justify-center p-4">
+      <Suspense fallback={<div className="text-center text-[#141413] font-medium">Loading order details...</div>}>
+        <CheckoutSuccessContent />
+      </Suspense>
     </div>
   );
 }

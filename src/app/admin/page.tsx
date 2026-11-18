@@ -1,8 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 
 export default async function AdminPage() {
+  // Force dynamic rendering at request time (Next.js 16 standard for cached components)
+  await connection();
+
   const cookieStore = await cookies();
   
   const supabase = createServerClient(

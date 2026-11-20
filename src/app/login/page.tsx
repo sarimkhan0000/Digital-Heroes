@@ -10,8 +10,6 @@ import {
   UserPlus,
   ArrowLeft,
   UserCheck,
-  ShieldCheck,
-  Sparkles,
   Building2,
 } from "lucide-react";
 
@@ -165,29 +163,6 @@ export default function LoginPage() {
             Create Account
           </button>
         </div>
-
-        {mode === "signin" ? (
-          <div className="mb-5 rounded-xl border border-slate-800 bg-slate-950/70 p-3.5">
-            <div className="flex items-center gap-2 text-xs font-semibold text-orange-400">
-              <ShieldCheck className="h-4 w-4 shrink-0" />
-              <span>Existing Client &amp; HR Sign In</span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-              Apne pehle se bane account ke email aur password se login karein. Naye user ke liye upar{" "}
-              <strong className="text-slate-200">Create Account</strong> tab chunein.
-            </p>
-          </div>
-        ) : (
-          <div className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/5 p-3.5">
-            <div className="flex items-center gap-2 text-xs font-semibold text-amber-300">
-              <Sparkles className="h-4 w-4 shrink-0" />
-              <span>Create New Portal Account</span>
-            </div>
-            <p className="text-[11px] text-slate-300/80 mt-1 leading-relaxed">
-              Naya account banayein taaki aap print orders track kar sakein, proofs approve kar sakein, aur saved artwork reorder kar sakein.
-            </p>
-          </div>
-        )}
 
         {errorMsg && (
           <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">

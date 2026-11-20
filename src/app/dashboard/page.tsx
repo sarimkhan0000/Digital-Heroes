@@ -1,3 +1,4 @@
+﻿import LogoutButton from "@/components/LogoutButton";
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, Clock, Plus } from 'lucide-react';
@@ -76,7 +77,7 @@ export default async function CustomerDashboardPage() {
                     <td className="px-4 py-3.5">
                       <span className="font-semibold block">{order.division_slug}</span>
                       <span className="font-mono text-[11px] text-[#141413]/65">
-                        {order.width_mm}×{order.height_mm}mm • {order.quantity} units
+                        {order.width_mm}Ã—{order.height_mm}mm â€¢ {order.quantity} units
                       </span>
                     </td>
                     <td className="px-4 py-3.5 font-mono font-bold">{order.stage}</td>
@@ -94,7 +95,7 @@ export default async function CustomerDashboardPage() {
                       )}
                     </td>
                     <td className="px-4 py-3.5 font-mono font-bold">
-                      £{Number(order.total_inc_vat).toFixed(2)}
+                      Â£{Number(order.total_inc_vat).toFixed(2)}
                     </td>
                     <td className="px-4 py-3.5 text-right">
                       <Link
@@ -131,7 +132,7 @@ export default async function CustomerDashboardPage() {
                   </span>
                   <h3 className="mt-1 font-heading text-base font-bold">{design.title}</h3>
                   <p className="mt-1 font-mono text-xs text-[#141413]/70">
-                    {design.width_mm}×{design.height_mm}mm • {design.quantity} units
+                    {design.width_mm}Ã—{design.height_mm}mm â€¢ {design.quantity} units
                   </p>
                   <Link
                     href={`/configure/${divInfo?.slug ?? 'labels-stickers'}?w=${design.width_mm}&h=${design.height_mm}&q=${design.quantity}&m=${design.material_id}`}
@@ -145,6 +146,15 @@ export default async function CustomerDashboardPage() {
             })}
           </div>
         )}
+      </section>
+
+      {/* Account / Session Logout */}
+      <section className="mt-12 border-t border-[#141413]/15 pt-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-heading text-sm font-bold text-[#141413]">Session Controls</h2>
+          <p className="text-xs text-[#141413]/65">Sign out of your client portal session.</p>
+        </div>
+        <LogoutButton />
       </section>
     </div>
   );

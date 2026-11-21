@@ -3,7 +3,7 @@
 import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle2, ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 import { OrderRecord } from "@/types/database";
 
 function CheckoutContent() {
@@ -33,7 +33,7 @@ function CheckoutContent() {
           return;
         }
         if (!res.ok || !data.order) {
-          setErrorMsg(data.error || "Could not load order details.");
+          setErrorMsg(data.error || "Unable to retrieve print job details.");
         } else {
           setOrder(data.order);
         }
@@ -41,7 +41,7 @@ function CheckoutContent() {
       })
       .catch(() => {
         if (!active) return;
-        setErrorMsg("Network error while loading order.");
+        setErrorMsg("Network error while loading print job details.");
         setLoading(false);
       });
 
@@ -50,21 +50,65 @@ function CheckoutContent() {
     };
   }, [orderId, router]);
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  const handleConfirmOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setConfirming(true);
-    setTimeout(() => {
-      setConfirming(false);
+    setErrorMsg(null);
+
+    try {
+      if (order) {
+        router.refresh();
+        setConfirmed(true);
+        setConfirming(false);
+        return;
+      }
+
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          divisionSlug: "industrial-panels",
+          widthMm: 300,
+          heightMm: 200,
+          quantity: 1,
+          sourceType: "CANVAS_DESIGN",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 401) {
+        router.push("/login?redirect=/checkout");
+        return;
+      }
+
+      if (!response.ok || !data.order) {
+        setErrorMsg(data.error || "Failed to submit print job to production queue.");
+        setConfirming(false);
+        return;
+      }
+
+      setOrder(data.order);
+      router.refresh();
       setConfirmed(true);
-    }, 500);
+    } catch {
+      setErrorMsg("Network error while submitting print job.");
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  const handleNavigateDashboard = () => {
+    router.refresh();
+    router.push("/dashboard");
   };
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
-        <div className="flex items-center gap-3 text-slate-300 text-sm">
-          <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
-          Loading order details...
+      <main className="min-h-screen bg-[#090d16] text-zinc-100 flex items-center justify-center p-6">
+        <div className="flex items-center gap-3 text-zinc-300 text-sm">
+          <Loader2 className="h-5 w-5 animate-spin text-indigo-400" />
+          Loading print job specifications...
         </div>
       </main>
     );
@@ -72,34 +116,35 @@ function CheckoutContent() {
 
   if (confirmed) {
     return (
-      <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6">
-        <div className="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-5 shadow-2xl">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto">
-            <CheckCircle2 className="h-9 w-9" />
+      <main className="min-h-screen bg-[#090d16] text-zinc-100 flex items-center justify-center p-6">
+        <div className="max-w-lg w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center space-y-5 shadow-2xl">
+          <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
+            <CheckCircle2 className="h-8 w-8" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Production Order Saved!
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Print Job Queued for Production
           </h1>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Your order{" "}
-            <span className="text-white font-mono font-semibold">
-              {order?.order_number || "#DH-ORDER"}
+          <p className="text-zinc-400 text-sm leading-relaxed">
+            Order{" "}
+            <span className="text-zinc-100 font-mono font-semibold">
+              {order?.order_number || "CONFIRMED"}
             </span>{" "}
-            is now saved under your account and ready in your dashboard.
+            has been recorded under your account and synced with your production dashboard.
           </p>
-          <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-[#E85D04] hover:bg-[#cf5102] text-white font-semibold text-sm transition"
+          <div className="pt-3 flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              type="button"
+              onClick={handleNavigateDashboard}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition"
             >
-              Go to Dashboard
+              Open Dashboard
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </button>
             <Link
-              href="/"
-              className="px-6 py-3 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-200 font-semibold text-sm transition"
+              href="/#divisions"
+              className="px-5 py-2.5 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-sm transition"
             >
-              Return to Storefront
+              Configure Another Job
             </Link>
           </div>
         </div>
@@ -108,83 +153,80 @@ function CheckoutContent() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white py-12 px-6">
-      <div className="max-w-3xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-7 space-y-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+    <main className="min-h-screen bg-[#090d16] text-zinc-100 py-12 px-6">
+      <div className="max-w-3xl mx-auto bg-zinc-900 border border-zinc-800 rounded-2xl p-7 space-y-6 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
           <div>
-            <span className="text-xs uppercase tracking-widest text-blue-400 font-semibold">
+            <span className="text-xs uppercase tracking-widest text-indigo-400 font-semibold">
               Digital Heroes Web-to-Print
             </span>
-            <h1 className="text-2xl font-bold mt-1">
-              Order Summary &amp; Confirmation
+            <h1 className="text-2xl font-bold mt-1 text-white">
+              Print Job Review &amp; Dispatch
             </h1>
           </div>
           <Link
             href="/dashboard"
-            className="text-xs text-slate-300 hover:text-white underline"
+            className="text-xs text-zinc-400 hover:text-white underline"
           >
             Back to Dashboard
           </Link>
         </div>
 
         {errorMsg && (
-          <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
             {errorMsg}
           </div>
         )}
 
-        {order ? (
-          <form onSubmit={handlePlaceOrder} className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950/70 border border-slate-800 rounded-xl p-4 text-xs">
+        <form onSubmit={handleConfirmOrder} className="space-y-5">
+          {order ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-zinc-950/80 border border-zinc-800 rounded-xl p-4 text-xs">
               <div>
-                <span className="text-slate-400 block">Order Number</span>
+                <span className="text-zinc-400 block">Order Reference</span>
                 <span className="font-mono font-bold text-sm text-white">
                   {order.order_number}
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 block">Division &amp; Material</span>
-                <span className="font-semibold text-white">
+                <span className="text-zinc-400 block">Division &amp; Substrate</span>
+                <span className="font-semibold text-zinc-100">
                   {order.division_slug} — {order.material_name}
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 block">Dimensions &amp; Quantity</span>
-                <span className="font-mono text-white">
+                <span className="text-zinc-400 block">Dimensions &amp; Run Size</span>
+                <span className="font-mono text-zinc-200">
                   {order.width_mm} × {order.height_mm} mm • {order.quantity} units
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 block">Total (inc. VAT)</span>
+                <span className="text-zinc-400 block">Total (inc. VAT)</span>
                 <span className="font-mono font-bold text-sm text-emerald-400">
                   £{Number(order.total_inc_vat).toFixed(2)}
                 </span>
               </div>
             </div>
-
-            <button
-              type="submit"
-              disabled={confirming}
-              className="w-full py-3.5 rounded-xl bg-[#E85D04] hover:bg-[#cf5102] text-white font-semibold text-sm transition disabled:opacity-60"
-            >
-              {confirming ? "Confirming Order..." : "Confirm & View on Dashboard"}
-            </button>
-          </form>
-        ) : (
-          !errorMsg && (
-            <div className="text-sm text-slate-400 space-y-4">
-              <p>
-                Configure a print job from a division to create an order linked to your account.
-              </p>
-              <Link
-                href="/#divisions"
-                className="inline-block px-5 py-2.5 rounded-lg bg-[#E85D04] text-white text-xs font-bold uppercase tracking-wider"
-              >
-                Browse Print Divisions
-              </Link>
+          ) : (
+            <div className="rounded-xl border border-zinc-800 bg-zinc-950/70 p-4 text-xs text-zinc-300 flex items-start gap-3">
+              <ShieldCheck className="h-4 w-4 text-indigo-400 shrink-0 mt-0.5" />
+              <div>
+                Ready to submit a print job directly to the <span className="font-mono text-white">orders</span> pipeline under your authenticated account, or{" "}
+                <Link href="/#divisions" className="text-indigo-400 underline hover:text-indigo-300">
+                  configure custom dimensions &amp; substrate
+                </Link>{" "}
+                first.
+              </div>
             </div>
-          )
-        )}
+          )}
+
+          <button
+            type="submit"
+            disabled={confirming}
+            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition disabled:opacity-60"
+          >
+            {confirming ? "Submitting Print Job..." : "Confirm & Sync to Dashboard"}
+          </button>
+        </form>
       </div>
     </main>
   );
@@ -194,8 +236,8 @@ export default function CheckoutPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-6 text-sm text-slate-300">
-          Loading checkout...
+        <main className="min-h-screen bg-[#090d16] text-zinc-300 flex items-center justify-center p-6 text-sm">
+          Loading checkout workspace...
         </main>
       }
     >

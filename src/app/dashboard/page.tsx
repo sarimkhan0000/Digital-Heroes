@@ -1,4 +1,7 @@
-﻿import LogoutButton from "@/components/LogoutButton";
+﻿export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+import LogoutButton from "@/components/LogoutButton";
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowUpRight, CheckCircle2, Clock, Plus } from 'lucide-react';
@@ -159,3 +162,4 @@ export default async function CustomerDashboardPage() {
     </div>
   );
 }
+

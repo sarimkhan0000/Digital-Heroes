@@ -49,19 +49,30 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const divisionSlug = String(body.divisionSlug || '');
-    const widthMm = Number(body.widthMm);
-    const heightMm = Number(body.heightMm);
-    const quantity = Math.max(1, Number(body.quantity || 1));
+    const rawWidthMm = Number(body.widthMm);
+    const rawHeightMm = Number(body.heightMm);
+    const rawQuantity = Number(body.quantity || 1);
 
-    const { data: division, error: divError } = await supabase
+    let { data: division } = await supabase
       .from('product_divisions')
       .select('*')
       .eq('slug', divisionSlug)
-      .single();
+      .maybeSingle();
 
-    if (divError || !division) {
+    if (!division) {
+      const { data: fallbackDivisions } = await supabase
+        .from('product_divisions')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: true })
+        .limit(1);
+
+      division = fallbackDivisions?.[0] ?? null;
+    }
+
+    if (!division) {
       return NextResponse.json(
-        { error: 'Invalid product division selected' },
+        { error: 'No active product divisions configured in database' },
         { status: 400 }
       );
     }
@@ -75,23 +86,59 @@ export async function POST(request: NextRequest) {
         .from('division_materials')
         .select('*')
         .eq('id', materialId)
-        .single();
+        .maybeSingle();
 
       if (material) {
         materialName = material.name;
         materialMultiplier = Number(material.price_multiplier) || 1;
+      } else {
+        materialId = null;
       }
     }
+
+    if (!materialId) {
+      const { data: fallbackMaterials } = await supabase
+        .from('division_materials')
+        .select('*')
+        .eq('division_id', division.id)
+        .limit(1);
+
+      const defaultMat = fallbackMaterials?.[0];
+      if (defaultMat) {
+        materialId = defaultMat.id;
+        materialName = defaultMat.name;
+        materialMultiplier = Number(defaultMat.price_multiplier) || 1;
+      }
+    }
+
+    const minW = Number(division.min_width_mm) || 100;
+    const maxW = Number(division.max_width_mm) || 500;
+    const minH = Number(division.min_height_mm) || 100;
+    const maxH = Number(division.max_height_mm) || 500;
+    const minQ = Number(division.min_quantity) || 1;
+
+    const widthMm =
+      Number.isFinite(rawWidthMm) && rawWidthMm >= minW && rawWidthMm <= maxW
+        ? rawWidthMm
+        : Math.round((minW + maxW) / 2);
+
+    const heightMm =
+      Number.isFinite(rawHeightMm) && rawHeightMm >= minH && rawHeightMm <= maxH
+        ? rawHeightMm
+        : Math.round((minH + maxH) / 2);
+
+    const quantity =
+      Number.isFinite(rawQuantity) && rawQuantity >= minQ ? rawQuantity : minQ;
 
     const pricing = calculateProductPrice({
       widthMm,
       heightMm,
-      minWidthMm: Number(division.min_width_mm),
-      maxWidthMm: Number(division.max_width_mm),
-      minHeightMm: Number(division.min_height_mm),
-      maxHeightMm: Number(division.max_height_mm),
+      minWidthMm: minW,
+      maxWidthMm: maxW,
+      minHeightMm: minH,
+      maxHeightMm: maxH,
       quantity,
-      minQuantity: Number(division.min_quantity),
+      minQuantity: minQ,
       baseSetupFee: Number(division.base_setup_fee),
       baseRatePerSqCm: Number(division.base_rate_per_sq_cm),
       materialMultiplier,
@@ -133,7 +180,7 @@ export async function POST(request: NextRequest) {
       setup_fee_ex_vat: pricing.setupFeeExVat,
       discount_percent: pricing.discountPercent,
       subtotal_ex_vat: pricing.subtotalExVat,
-      vat_rate: 20,
+      vat_rate: 0.2,
       vat_amount: pricing.vatAmount,
       total_inc_vat: pricing.totalIncVat,
       currency: 'GBP',
@@ -168,3 +215,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
+
+
+
+
+
+
